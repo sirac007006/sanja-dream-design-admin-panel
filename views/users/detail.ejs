@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korisnik - Sanja Dream Design Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-gem"></i></div>
+                <div><div class="sidebar-title">Sanja Dream</div><div class="sidebar-subtitle">Admin Panel</div></div>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-section-title">Glavno</div>
+                <a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">E-commerce</div>
+                <a href="/products" class="nav-link"><i class="fas fa-box"></i> Proizvodi</a>
+                <a href="/categories" class="nav-link"><i class="fas fa-tags"></i> Kategorije</a>
+                <a href="/subcategories" class="nav-link"><i class="fas fa-tag"></i> Podkategorije</a>
+                <a href="/orders" class="nav-link"><i class="fas fa-shopping-bag"></i> Porudžbine</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">Korisnici</div>
+                <a href="/users" class="nav-link active"><i class="fas fa-users"></i> Korisnici</a>
+                <a href="/loyalty" class="nav-link"><i class="fas fa-star"></i> Loyalty Poeni</a>
+            </nav>
+            <nav class="nav-section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <a href="/logout" class="nav-link" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Odjavi se</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title"><%= user.first_name %> <%= user.last_name %></h1>
+                    <p class="page-subtitle">Detalji korisnika #<%= user.user_id %></p>
+                </div>
+                <a href="/users" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Nazad</a>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Informacije</h3></div>
+                    <div class="card-body">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <div class="user-avatar" style="width: 80px; height: 80px; font-size: 32px; margin: 0 auto 16px;"><%= user.first_name ? user.first_name[0].toUpperCase() : 'U' %></div>
+                            <h3><%= user.first_name %> <%= user.last_name %></h3>
+                            <span class="badge <%= user.role === 'admin' ? 'badge-purple' : 'badge-info' %>"><%= user.role === 'admin' ? 'Administrator' : 'Kupac' %></span>
+                        </div>
+                        <div class="detail-grid" style="grid-template-columns: 1fr;">
+                            <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value"><%= user.email %></div></div>
+                            <div class="detail-item"><div class="detail-label">Telefon</div><div class="detail-value"><%= user.phone || 'Nije unesen' %></div></div>
+                            <div class="detail-item"><div class="detail-label">Loyalty Poeni</div><div class="detail-value points-value" style="font-size: 24px;"><%= user.loyalty_points || 0 %></div></div>
+                            <div class="detail-item"><div class="detail-label">Registrovan</div><div class="detail-value"><%= new Date(user.created_at).toLocaleDateString('sr-RS') %></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Istorija Loyalty Poena</h3></div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="table">
+                            <thead><tr><th>ID</th><th>Zarađeno</th><th>Potrošeno</th><th>Razlog</th><th>Datum</th></tr></thead>
+                            <tbody>
+                                <% loyaltyPoints.forEach(function(point) { %>
+                                <tr>
+                                    <td>#<%= point.points_id %></td>
+                                    <td><span class="points-positive">+<%= point.points_earned %></span></td>
+                                    <td><span class="points-negative"><%= point.points_spent > 0 ? '-' + point.points_spent : '0' %></span></td>
+                                    <td><%= point.reason %></td>
+                                    <td><%= new Date(point.created_at).toLocaleDateString('sr-RS') %></td>
+                                </tr>
+                                <% }); %>
+                                <% if (loyaltyPoints.length === 0) { %>
+                                <tr><td colspan="5" style="text-align: center; padding: 30px;">Nema istorije</td></tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header"><h3 class="card-title">Porudžbine korisnika</h3></div>
+                <div class="card-body" style="padding: 0;">
+                    <table class="table">
+                        <thead><tr><th>ID</th><th>Iznos</th><th>Status</th><th>Datum</th><th>Akcije</th></tr></thead>
+                        <tbody>
+                            <% orders.forEach(function(order) { %>
+                            <tr>
+                                <td><strong>#<%= order.order_id %></strong></td>
+                                <td><strong><%= parseFloat(order.total_amount || 0).toFixed(2) %> €</strong></td>
+                                <td><span class="badge badge-<%= order.status === 'delivered' ? 'success' : order.status === 'cancelled' ? 'danger' : 'warning' %>"><%= order.status %></span></td>
+                                <td><%= new Date(order.created_at).toLocaleDateString('sr-RS') %></td>
+                                <td><a href="/orders/<%= order.order_id %>" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a></td>
+                            </tr>
+                            <% }); %>
+                            <% if (orders.length === 0) { %>
+                            <tr><td colspan="5" style="text-align: center; padding: 30px;">Nema porudžbina</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>

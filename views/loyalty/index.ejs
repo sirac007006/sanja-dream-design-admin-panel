@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loyalty Poeni - Sanja Dream Design Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-logo"><i class="fas fa-gem"></i></div><div><div class="sidebar-title">Sanja Dream</div><div class="sidebar-subtitle">Admin Panel</div></div></div>
+            <nav class="nav-section"><div class="nav-section-title">Glavno</div><a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></nav>
+            <nav class="nav-section"><div class="nav-section-title">E-commerce</div><a href="/products" class="nav-link"><i class="fas fa-box"></i> Proizvodi</a><a href="/categories" class="nav-link"><i class="fas fa-tags"></i> Kategorije</a><a href="/subcategories" class="nav-link"><i class="fas fa-tag"></i> Podkategorije</a><a href="/orders" class="nav-link"><i class="fas fa-shopping-bag"></i> Porudžbine</a></nav>
+            <nav class="nav-section"><div class="nav-section-title">Korisnici</div><a href="/users" class="nav-link"><i class="fas fa-users"></i> Korisnici</a><a href="/loyalty" class="nav-link active"><i class="fas fa-star"></i> Loyalty Poeni</a></nav>
+            <nav class="nav-section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);"><a href="/logout" class="nav-link" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Odjavi se</a></nav>
+        </aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div><h1 class="page-title">Loyalty Poeni</h1><p class="page-subtitle">Pregled transakcija</p></div>
+                <button class="btn btn-primary" onclick="openModal('addModal')"><i class="fas fa-plus"></i> Dodaj</button>
+            </div>
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card orange"><div class="stat-icon"><i class="fas fa-star"></i></div><div class="stat-value"><%= stats.totalEarned %></div><div class="stat-label">Ukupno zarađeno</div></div>
+                <div class="stat-card pink"><div class="stat-icon"><i class="fas fa-shopping-cart"></i></div><div class="stat-value"><%= stats.totalSpent %></div><div class="stat-label">Ukupno potrošeno</div></div>
+                <div class="stat-card green"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value"><%= stats.uniqueUsers %></div><div class="stat-label">Korisnika</div></div>
+            </div>
+            <div class="filters-bar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Pretraži..." id="searchInput"></div></div>
+            <div class="card"><div class="card-body" style="padding: 0;">
+                <table class="table" id="dataTable">
+                    <thead><tr><th>ID</th><th>Korisnik</th><th>Zarađeno</th><th>Potrošeno</th><th>Razlog</th><th>Datum</th><th>Akcije</th></tr></thead>
+                    <tbody>
+                        <% points.forEach(function(p) { %>
+                        <tr>
+                            <td>#<%= p.points_id %></td>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar"><%= p.first_name ? p.first_name[0].toUpperCase() : 'U' %></div>
+                                    <div><div class="user-name"><%= p.first_name || 'N/A' %> <%= p.last_name || '' %></div><div class="user-email"><%= p.email || '' %></div></div>
+                                </div>
+                            </td>
+                            <td><span class="points-positive">+<%= p.points_earned %></span></td>
+                            <td><span class="points-negative"><%= p.points_spent > 0 ? '-' + p.points_spent : '0' %></span></td>
+                            <td><span class="badge badge-info"><%= p.reason %></span></td>
+                            <td><%= new Date(p.created_at).toLocaleDateString('sr-RS') %></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-secondary btn-icon" onclick='editItem(<%- JSON.stringify(p) %>)'><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger btn-icon" onclick="deleteItem(<%= p.points_id %>)"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div></div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Dodaj poene</h3><button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button></div>
+            <form id="addForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Korisnik *</label>
+                        <select name="user_id" class="form-select" required>
+                            <option value="">Izaberi</option>
+                            <% users.forEach(function(u) { %><option value="<%= u.user_id %>"><%= u.first_name %> <%= u.last_name %> (<%= u.email %>)</option><% }); %>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Poeni +</label><input type="number" name="points_earned" class="form-input" value="0" min="0"></div>
+                        <div class="form-group"><label class="form-label">Poeni -</label><input type="number" name="points_spent" class="form-input" value="0" min="0"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Razlog *</label><input type="text" name="reason" class="form-input" required placeholder="npr. Bonus"></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('addModal')">Otkaži</button><button type="submit" class="btn btn-primary">Sačuvaj</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Izmjeni poene</h3><button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button></div>
+            <form id="editForm">
+                <input type="hidden" name="id" id="edit_id">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Poeni +</label><input type="number" name="points_earned" id="edit_points_earned" class="form-input" min="0"></div>
+                        <div class="form-group"><label class="form-label">Poeni -</label><input type="number" name="points_spent" id="edit_points_spent" class="form-input" min="0"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Razlog *</label><input type="text" name="reason" id="edit_reason" class="form-input" required></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Otkaži</button><button type="submit" class="btn btn-primary">Sačuvaj</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this); const data = Object.fromEntries(fd.entries());
+            try {
+                const res = await fetch('/api/loyalty', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) { showToast('Dodato!'); setTimeout(function(){location.reload();}, 1000); } else { showToast('Greška!', 'error'); }
+            } catch(e) { showToast('Greška!', 'error'); }
+        });
+
+        function editItem(item) {
+            document.getElementById('edit_id').value = item.points_id;
+            document.getElementById('edit_points_earned').value = item.points_earned;
+            document.getElementById('edit_points_spent').value = item.points_spent;
+            document.getElementById('edit_reason').value = item.reason;
+            openModal('editModal');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this); const data = Object.fromEntries(fd.entries());
+            try {
+                const res = await fetch('/api/loyalty/' + data.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) { showToast('Ažurirano!'); setTimeout(function(){location.reload();}, 1000); } else { showToast('Greška!', 'error'); }
+            } catch(e) { showToast('Greška!', 'error'); }
+        });
+
+        async function deleteItem(id) { if (!confirm('Obriši?')) return; try { await fetch('/api/loyalty/' + id, { method: 'DELETE' }); showToast('Obrisano!'); setTimeout(function(){location.reload();}, 1000); } catch(e) { showToast('Greška!', 'error'); } }
+    </script>
+</body>
+</html>

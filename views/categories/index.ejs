@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategorije - Sanja Dream Design Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-logo"><i class="fas fa-gem"></i></div><div><div class="sidebar-title">Sanja Dream</div><div class="sidebar-subtitle">Admin Panel</div></div></div>
+            <nav class="nav-section"><div class="nav-section-title">Glavno</div><a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></nav>
+            <nav class="nav-section"><div class="nav-section-title">E-commerce</div><a href="/products" class="nav-link"><i class="fas fa-box"></i> Proizvodi</a><a href="/categories" class="nav-link active"><i class="fas fa-tags"></i> Kategorije</a><a href="/subcategories" class="nav-link"><i class="fas fa-tag"></i> Podkategorije</a><a href="/orders" class="nav-link"><i class="fas fa-shopping-bag"></i> Porudžbine</a></nav>
+            <nav class="nav-section"><div class="nav-section-title">Korisnici</div><a href="/users" class="nav-link"><i class="fas fa-users"></i> Korisnici</a><a href="/loyalty" class="nav-link"><i class="fas fa-star"></i> Loyalty Poeni</a></nav>
+            <nav class="nav-section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);"><a href="/logout" class="nav-link" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Odjavi se</a></nav>
+        </aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div><h1 class="page-title">Kategorije</h1><p class="page-subtitle">Ukupno: <%= categories.length %></p></div>
+                <button class="btn btn-primary" onclick="openModal('addModal')"><i class="fas fa-plus"></i> Dodaj</button>
+            </div>
+            <div class="filters-bar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Pretraži..." id="searchInput"></div></div>
+            <div class="card"><div class="card-body" style="padding: 0;">
+                <table class="table" id="dataTable">
+                    <thead><tr><th>ID</th><th>Naziv</th><th>Slug</th><th>Ikonica</th><th>Redoslijed</th><th>Status</th><th>Akcije</th></tr></thead>
+                    <tbody>
+                        <% categories.forEach(function(c) { %>
+                        <tr>
+                            <td>#<%= c.category_id %></td>
+                            <td><strong><%= c.name %></strong></td>
+                            <td><code><%= c.slug %></code></td>
+                            <td><%= c.icon || '-' %></td>
+                            <td><span class="badge badge-info"><%= c.display_order || 0 %></span></td>
+                            <td><span class="badge <%= c.is_active ? 'badge-success' : 'badge-danger' %>"><%= c.is_active ? 'Aktivna' : 'Neaktivna' %></span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-secondary btn-icon" onclick='editItem(<%- JSON.stringify(c) %>)'><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger btn-icon" onclick="deleteItem(<%= c.category_id %>)"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div></div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Dodaj kategoriju</h3><button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button></div>
+            <form id="addForm">
+                <div class="modal-body">
+                    <div class="form-group"><label class="form-label">Naziv *</label><input type="text" name="name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Slug *</label><input type="text" name="slug" class="form-input" required></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Ikonica</label><input type="text" name="icon" class="form-input" placeholder="npr. gem"></div>
+                        <div class="form-group"><label class="form-label">Redoslijed</label><input type="number" name="display_order" class="form-input" value="0"></div>
+                    </div>
+                    <label class="form-check"><input type="checkbox" name="is_active" checked><span>Aktivna</span></label>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('addModal')">Otkaži</button><button type="submit" class="btn btn-primary">Sačuvaj</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Izmjeni kategoriju</h3><button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button></div>
+            <form id="editForm">
+                <input type="hidden" name="id" id="edit_id">
+                <div class="modal-body">
+                    <div class="form-group"><label class="form-label">Naziv *</label><input type="text" name="name" id="edit_name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Slug *</label><input type="text" name="slug" id="edit_slug" class="form-input" required></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Ikonica</label><input type="text" name="icon" id="edit_icon" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">Redoslijed</label><input type="number" name="display_order" id="edit_display_order" class="form-input"></div>
+                    </div>
+                    <label class="form-check"><input type="checkbox" name="is_active" id="edit_is_active"><span>Aktivna</span></label>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Otkaži</button><button type="submit" class="btn btn-primary">Sačuvaj</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this); const data = Object.fromEntries(fd.entries());
+            data.is_active = fd.has('is_active');
+            try {
+                const res = await fetch('/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) { showToast('Dodato!'); setTimeout(function(){location.reload();}, 1000); } else { showToast('Greška!', 'error'); }
+            } catch(e) { showToast('Greška!', 'error'); }
+        });
+
+        function editItem(item) {
+            document.getElementById('edit_id').value = item.category_id;
+            document.getElementById('edit_name').value = item.name;
+            document.getElementById('edit_slug').value = item.slug;
+            document.getElementById('edit_icon').value = item.icon || '';
+            document.getElementById('edit_display_order').value = item.display_order || 0;
+            document.getElementById('edit_is_active').checked = item.is_active;
+            openModal('editModal');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this); const data = Object.fromEntries(fd.entries());
+            data.is_active = document.getElementById('edit_is_active').checked;
+            try {
+                const res = await fetch('/api/categories/' + data.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) { showToast('Ažurirano!'); setTimeout(function(){location.reload();}, 1000); } else { showToast('Greška!', 'error'); }
+            } catch(e) { showToast('Greška!', 'error'); }
+        });
+
+        async function deleteItem(id) { if (!confirm('Obriši?')) return; try { await fetch('/api/categories/' + id, { method: 'DELETE' }); showToast('Obrisano!'); setTimeout(function(){location.reload();}, 1000); } catch(e) { showToast('Greška!', 'error'); } }
+    </script>
+</body>
+</html>

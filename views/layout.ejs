@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Admin Panel' %> - Sanja Dream Design</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <div>
+                    <div class="sidebar-title">Sanja Dream</div>
+                    <div class="sidebar-subtitle">Admin Panel</div>
+                </div>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Glavno</div>
+                <a href="/" class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">E-commerce</div>
+                <a href="/products" class="nav-link <%= currentPage === 'products' ? 'active' : '' %>">
+                    <i class="fas fa-box"></i>
+                    <span>Proizvodi</span>
+                </a>
+                <a href="/categories" class="nav-link <%= currentPage === 'categories' ? 'active' : '' %>">
+                    <i class="fas fa-tags"></i>
+                    <span>Kategorije</span>
+                </a>
+                <a href="/subcategories" class="nav-link <%= currentPage === 'subcategories' ? 'active' : '' %>">
+                    <i class="fas fa-tag"></i>
+                    <span>Podkategorije</span>
+                </a>
+                <a href="/orders" class="nav-link <%= currentPage === 'orders' ? 'active' : '' %>">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Porudžbine</span>
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Korisnici</div>
+                <a href="/users" class="nav-link <%= currentPage === 'users' ? 'active' : '' %>">
+                    <i class="fas fa-users"></i>
+                    <span>Korisnici</span>
+                </a>
+                <a href="/loyalty" class="nav-link <%= currentPage === 'loyalty' ? 'active' : '' %>">
+                    <i class="fas fa-star"></i>
+                    <span>Loyalty Poeni</span>
+                </a>
+            </nav>
+
+            <nav class="nav-section" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Podešavanja</span>
+                </a>
+                <a href="#" class="nav-link" style="color: var(--danger);">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Odjavi se</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <%- body %>
+        </main>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <script src="/js/main.js"></script>
+    <% if (typeof scripts !== 'undefined') { %>
+        <%- scripts %>
+    <% } %>
+</body>
+</html>

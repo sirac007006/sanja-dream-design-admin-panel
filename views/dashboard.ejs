@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sanja Dream Design Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-gem"></i></div>
+                <div>
+                    <div class="sidebar-title">Sanja Dream</div>
+                    <div class="sidebar-subtitle">Admin Panel</div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-section-title">Glavno</div>
+                <a href="/dashboard" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">E-commerce</div>
+                <a href="/products" class="nav-link"><i class="fas fa-box"></i> Proizvodi</a>
+                <a href="/categories" class="nav-link"><i class="fas fa-tags"></i> Kategorije</a>
+                <a href="/subcategories" class="nav-link"><i class="fas fa-tag"></i> Podkategorije</a>
+                <a href="/orders" class="nav-link"><i class="fas fa-shopping-bag"></i> Porudžbine</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">Korisnici</div>
+                <a href="/users" class="nav-link"><i class="fas fa-users"></i> Korisnici</a>
+                <a href="/loyalty" class="nav-link"><i class="fas fa-star"></i> Loyalty Poeni</a>
+            </nav>
+            <nav class="nav-section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <a href="/logout" class="nav-link" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Odjavi se</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Pregled poslovanja - Sanja Dream Design</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card purple">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-value"><%= stats.totalUsers %></div>
+                    <div class="stat-label">Ukupno korisnika</div>
+                </div>
+                <div class="stat-card pink">
+                    <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-value"><%= stats.totalOrders %></div>
+                    <div class="stat-label">Ukupno porudžbina</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    <div class="stat-value"><%= stats.totalProducts %></div>
+                    <div class="stat-label">Proizvoda</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                    <div class="stat-value"><%= stats.totalLoyaltyPoints %></div>
+                    <div class="stat-label">Loyalty poena</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                    <div class="stat-value"><%= stats.totalCategories %></div>
+                    <div class="stat-label">Kategorija</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <a href="/products" class="quick-action">
+                    <div class="quick-action-icon"><i class="fas fa-plus"></i></div>
+                    <div class="quick-action-text"><h4>Proizvodi</h4><p>Upravljaj proizvodima</p></div>
+                </a>
+                <a href="/orders" class="quick-action">
+                    <div class="quick-action-icon" style="background: rgba(236, 72, 153, 0.2); color: var(--secondary);"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="quick-action-text"><h4>Porudžbine</h4><p>Pregledaj sve porudžbine</p></div>
+                </a>
+                <a href="/users" class="quick-action">
+                    <div class="quick-action-icon" style="background: rgba(16, 185, 129, 0.2); color: var(--success);"><i class="fas fa-user-plus"></i></div>
+                    <div class="quick-action-text"><h4>Korisnici</h4><p>Upravljaj korisnicima</p></div>
+                </a>
+                <a href="/categories" class="quick-action">
+                    <div class="quick-action-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--warning);"><i class="fas fa-folder-plus"></i></div>
+                    <div class="quick-action-text"><h4>Kategorije</h4><p>Upravljaj kategorijama</p></div>
+                </a>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Posljednje porudžbine</h3>
+                        <a href="/orders" class="btn btn-sm btn-secondary">Vidi sve</a>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="table">
+                            <thead><tr><th>ID</th><th>Korisnik</th><th>Iznos</th><th>Datum</th></tr></thead>
+                            <tbody>
+                                <% recentOrders.forEach(function(order) { %>
+                                <tr>
+                                    <td><strong>#<%= order.order_id %></strong></td>
+                                    <td><%= order.first_name || 'N/A' %> <%= order.last_name || '' %></td>
+                                    <td><strong><%= parseFloat(order.total_amount || 0).toFixed(2) %> €</strong></td>
+                                    <td><%= new Date(order.created_at).toLocaleDateString('sr-RS') %></td>
+                                </tr>
+                                <% }); %>
+                                <% if (recentOrders.length === 0) { %>
+                                <tr><td colspan="4" style="text-align: center; padding: 30px;">Nema porudžbina</td></tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Novi korisnici</h3>
+                        <a href="/users" class="btn btn-sm btn-secondary">Vidi sve</a>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="table">
+                            <thead><tr><th>Korisnik</th><th>Email</th><th>Poeni</th></tr></thead>
+                            <tbody>
+                                <% recentUsers.forEach(function(user) { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar"><%= user.first_name ? user.first_name[0].toUpperCase() : 'U' %></div>
+                                            <span class="user-name"><%= user.first_name %> <%= user.last_name %></span>
+                                        </div>
+                                    </td>
+                                    <td><%= user.email %></td>
+                                    <td><span class="points-value"><%= user.loyalty_points || 0 %></span></td>
+                                </tr>
+                                <% }); %>
+                                <% if (recentUsers.length === 0) { %>
+                                <tr><td colspan="3" style="text-align: center; padding: 30px;">Nema korisnika</td></tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>

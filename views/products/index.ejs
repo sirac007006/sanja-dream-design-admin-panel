@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proizvodi - Sanja Dream Design Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-logo"><i class="fas fa-gem"></i></div><div><div class="sidebar-title">Sanja Dream</div><div class="sidebar-subtitle">Admin Panel</div></div></div>
+            <nav class="nav-section"><div class="nav-section-title">Glavno</div><a href="/dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></nav>
+            <nav class="nav-section"><div class="nav-section-title">E-commerce</div><a href="/products" class="nav-link active"><i class="fas fa-box"></i> Proizvodi</a><a href="/categories" class="nav-link"><i class="fas fa-tags"></i> Kategorije</a><a href="/subcategories" class="nav-link"><i class="fas fa-tag"></i> Podkategorije</a><a href="/orders" class="nav-link"><i class="fas fa-shopping-bag"></i> Porudžbine</a></nav>
+            <nav class="nav-section"><div class="nav-section-title">Korisnici</div><a href="/users" class="nav-link"><i class="fas fa-users"></i> Korisnici</a><a href="/loyalty" class="nav-link"><i class="fas fa-star"></i> Loyalty Poeni</a></nav>
+            <nav class="nav-section" style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);"><a href="/logout" class="nav-link" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> Odjavi se</a></nav>
+        </aside>
+        <main class="main-content">
+            <div class="page-header">
+                <div><h1 class="page-title">Proizvodi</h1><p class="page-subtitle">Ukupno: <%= products.length %></p></div>
+                <button class="btn btn-primary" onclick="openModal('addModal')"><i class="fas fa-plus"></i> Dodaj</button>
+            </div>
+            <div class="filters-bar"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Pretraži..." id="searchInput"></div></div>
+            <div class="card"><div class="card-body" style="padding: 0;">
+                <table class="table" id="dataTable">
+                    <thead><tr><th>ID</th><th>Naziv</th><th>Cijena</th><th>Zaliha</th><th>Status</th><th>Akcije</th></tr></thead>
+                    <tbody>
+                        <% products.forEach(function(p) { %>
+                        <tr>
+                            <td>#<%= p.product_id %></td>
+                            <td><strong><%= p.name %></strong><br><small style="color:var(--text-muted)"><%= p.slug %></small></td>
+                            <td><%= parseFloat(p.price).toFixed(2) %> €<% if(p.sale_price) { %><br><span class="badge badge-success"><%= parseFloat(p.sale_price).toFixed(2) %> €</span><% } %></td>
+                            <td><span class="badge <%= p.stock_quantity > 0 ? 'badge-success' : 'badge-danger' %>"><%= p.stock_quantity || 0 %></span></td>
+                            <td><% if(p.is_featured) { %><span class="badge badge-purple">★</span><% } %><% if(p.is_new) { %><span class="badge badge-pink">Novo</span><% } %><% if(p.is_on_sale) { %><span class="badge badge-warning">%</span><% } %></td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-sm btn-secondary btn-icon" onclick='editItem(<%- JSON.stringify(p) %>)'><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger btn-icon" onclick="deleteItem(<%= p.product_id %>)"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div></div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Dodaj proizvod</h3><button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button></div>
+            <form id="addForm">
+                <div class="modal-body">
+                    <div class="form-group"><label class="form-label">Naziv *</label><input type="text" name="name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Slug *</label><input type="text" name="slug" class="form-input" required></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Cijena *</label><input type="number" name="price" class="form-input" step="0.01" required></div>
+                        <div class="form-group"><label class="form-label">Popust cijena</label><input type="number" name="sale_price" class="form-input" step="0.01"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Zaliha</label><input type="number" name="stock_quantity" class="form-input" value="0"></div>
+                    <div style="display:flex;gap:20px;margin-top:16px;">
+                        <label class="form-check"><input type="checkbox" name="is_featured"><span>Istaknuto</span></label>
+                        <label class="form-check"><input type="checkbox" name="is_new"><span>Novo</span></label>
+                        <label class="form-check"><input type="checkbox" name="is_on_sale"><span>Popust</span></label>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('addModal')">Otkaži</button><button type="submit" class="btn btn-primary">Sačuvaj</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Izmjeni proizvod</h3><button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button></div>
+            <form id="editForm">
+                <input type="hidden" name="id" id="edit_id">
+                <div class="modal-body">
+                    <div class="form-group"><label class="form-label">Naziv *</label><input type="text" name="name" id="edit_name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Slug *</label><input type="text" name="slug" id="edit_slug" class="form-input" required></div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Cijena *</label><input type="number" name="price" id="edit_price" class="form-input" step="0.01" required></div>
+                        <div class="form-group"><label class="form-label">Popust cijena</label><input type="number" name="sale_price" id="edit_sale_price" class="form-input" step="0.01"></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Zaliha</label><input type="number" name="stock_quantity" id="edit_stock_quantity" class="form-input"></div>
+                    <div style="display:flex;gap:20px;margin-top:16px;">
+                        <label class="form-check"><input type="checkbox" name="is_featured" id="edit_is_featured"><span>Istaknuto</span></label>
+                        <label class="form-check"><input type="checkbox" name="is_new" id="edit_is_new"><span>Novo</span></label>
+                        <label class="form-check"><input type="checkbox" name="is_on_sale" id="edit_is_on_sale"><span>Popust</span></label>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Otkaži</button><button type="submit" class="btn btn-primary">Sačuvaj</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this); const data = Object.fromEntries(fd.entries());
+            data.is_featured = fd.has('is_featured'); data.is_new = fd.has('is_new'); data.is_on_sale = fd.has('is_on_sale');
+            try {
+                const res = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) { showToast('Dodato!'); setTimeout(function(){location.reload();}, 1000); } else { showToast('Greška!', 'error'); }
+            } catch(e) { showToast('Greška!', 'error'); }
+        });
+
+        function editItem(item) {
+            document.getElementById('edit_id').value = item.product_id;
+            document.getElementById('edit_name').value = item.name;
+            document.getElementById('edit_slug').value = item.slug;
+            document.getElementById('edit_price').value = item.price;
+            document.getElementById('edit_sale_price').value = item.sale_price || '';
+            document.getElementById('edit_stock_quantity').value = item.stock_quantity || 0;
+            document.getElementById('edit_is_featured').checked = item.is_featured;
+            document.getElementById('edit_is_new').checked = item.is_new;
+            document.getElementById('edit_is_on_sale').checked = item.is_on_sale;
+            openModal('editModal');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this); const data = Object.fromEntries(fd.entries());
+            data.is_featured = document.getElementById('edit_is_featured').checked;
+            data.is_new = document.getElementById('edit_is_new').checked;
+            data.is_on_sale = document.getElementById('edit_is_on_sale').checked;
+            try {
+                const res = await fetch('/api/products/' + data.id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                if (res.ok) { showToast('Ažurirano!'); setTimeout(function(){location.reload();}, 1000); } else { showToast('Greška!', 'error'); }
+            } catch(e) { showToast('Greška!', 'error'); }
+        });
+
+        async function deleteItem(id) { if (!confirm('Obriši?')) return; try { await fetch('/api/products/' + id, { method: 'DELETE' }); showToast('Obrisano!'); setTimeout(function(){location.reload();}, 1000); } catch(e) { showToast('Greška!', 'error'); } }
+    </script>
+</body>
+</html>
